@@ -1,0 +1,21 @@
+
+<meta charset="UTF-8">
+<table style="width:100%;" bgcolor="#003366">
+<tr>
+<td style="width:1%;">
+</td>
+<td align="left" valign="middle">
+
+</td>
+<td style="width:80%;">
+</td>
+<td align="right" valign="middle"> 
+ <font face="Trebuchet MS" color="darkblue" size="2px"><a href="prijava.php">&nbsp;Пријава&nbsp;</a> </font>
+</td>
+<td align="right" valign="middle"> 
+ <font face="Trebuchet MS" color="darkblue" size="2px"><a href="kreiranjenaloga.php">&nbsp;Kreiraj Nalog&nbsp;</a> </font>
+</td>
+<td style="width:1%;">
+</td>
+</tr>
+</table>

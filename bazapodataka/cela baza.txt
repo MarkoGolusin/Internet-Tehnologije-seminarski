@@ -1,0 +1,132 @@
+CREATE DATABASE ITSemi
+CHARACTER SET utf8
+COLLATE utf8_general_ci;
+
+USE ITSemi;
+
+-- Tabela Zanr
+CREATE TABLE Zanr (
+   OznakaZanra CHAR(2) NOT NULL PRIMARY KEY,
+   Naziv VARCHAR(50) NOT NULL,
+   UkupanBrojPredstava INT NOT NULL
+);
+
+-- Tabela Predstava
+CREATE TABLE Predstava (
+    IDPredstave INT NOT NULL PRIMARY KEY,
+    Naziv VARCHAR(50) NOT NULL,
+    Opis VARCHAR(200) NOT NULL,
+    NazivFajlaFotografije VARCHAR(100) NULL,
+    OznakaZanra CHAR(2) NOT NULL,
+    CONSTRAINT FK_Predstava_Zanr
+        FOREIGN KEY (OznakaZanra)
+        REFERENCES Zanr(OznakaZanra)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+);
+
+-- Tabela Izvodjenje
+CREATE TABLE Izvodjenje (
+    IDIzvodjenja INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    DatumIzvodjenja DATE NOT NULL,
+    VremeIzvodjenja TIME NOT NULL,
+    Mesto VARCHAR(50) NOT NULL,
+    IDPredstave INT NOT NULL,
+    CONSTRAINT FK_Izvodjenje_Predstava
+        FOREIGN KEY (IDPredstave)
+        REFERENCES Predstava(IDPredstave)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- Tabela Korisnik
+CREATE TABLE KORISNIK (
+   IDKORISNIKA INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   PREZIME VARCHAR(50) NOT NULL,
+   IME VARCHAR(40) NOT NULL,
+   EMAIL VARCHAR(60) NOT NULL,
+   KORISNICKOIME VARCHAR(30) NOT NULL,
+   SIFRA VARCHAR(255) NOT NULL,
+   URLSLike VARCHAR(250) NULL,
+   statusucesca VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Glumac (
+    IDGlumca INT AUTO_INCREMENT PRIMARY KEY,
+    Ime VARCHAR(50) NOT NULL,
+    Prezime VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Angazman (
+    IDPredstave INT NOT NULL,
+    IDGlumca INT NOT NULL,
+    Uloga VARCHAR(50) NOT NULL,
+    PRIMARY KEY (IDPredstave, IDGlumca),
+    FOREIGN KEY (IDPredstave) REFERENCES Predstava(IDPredstave) ON DELETE CASCADE,
+    FOREIGN KEY (IDGlumca) REFERENCES Glumac(IDGlumca) ON DELETE RESTRICT
+);
+
+
+
+INSERT INTO Zanr (OznakaZanra, Naziv, UkupanBrojPredstava) VALUES ('KM', 'Komedija',0);
+INSERT INTO Zanr (OznakaZanra, Naziv, UkupanBrojPredstava) VALUES ('DM', 'Drama',0);
+
+INSERT INTO Glumac (Ime, Prezime) VALUES ('Pera', 'Peric');
+INSERT INTO Glumac (Ime, Prezime) VALUES ('Marko', 'Markovic');
+
+-- View-ovi
+CREATE OR REPLACE VIEW SviPodaciOPredstavama AS
+SELECT
+    p.IDPredstave,
+    p.Naziv,
+    p.Opis,
+    p.NazivFajlaFotografije,
+    z.Naziv AS NazivZanra
+FROM Predstava p
+INNER JOIN Zanr z
+    ON p.OznakaZanra = z.OznakaZanra;
+
+CREATE OR REPLACE VIEW MasterDetailPredstava AS
+SELECT
+    p.IDPredstave,
+    p.Naziv AS NazivPredstave,
+    p.Opis,
+    p.NazivFajlaFotografije,
+    z.Naziv AS NazivZanra,
+    i.IDIzvodjenja,
+    i.DatumIzvodjenja,
+    i.VremeIzvodjenja,
+    i.Mesto
+FROM Predstava p
+INNER JOIN Izvodjenje i
+    ON p.IDPredstave = i.IDPredstave
+INNER JOIN Zanr z
+    ON p.OznakaZanra = z.OznakaZanra;
+
+-- Procedura za dodavanje predstave
+DELIMITER $$
+CREATE PROCEDURE DodajPredstavu (
+    IN pIDPredstave INT,
+    IN pNaziv VARCHAR(50),
+    IN pOpis VARCHAR(200),
+    IN pNazivFajlaFotografije VARCHAR(100),
+    IN pOznakaZanra CHAR(2)
+)
+BEGIN
+    INSERT INTO Predstava
+        (IDPredstave, Naziv, Opis, NazivFajlaFotografije, OznakaZanra)
+    VALUES
+        (pIDPredstave, pNaziv, pOpis, pNazivFajlaFotografije, pOznakaZanra);
+END$$
+DELIMITER ;
+
+CREATE OR REPLACE VIEW ITSemi.SviPodaciOPredstavamaSaSlikom AS
+SELECT
+    p.IDPredstave,
+    p.Naziv,
+    p.Opis,
+    p.NazivFajlaFotografije,
+    z.Naziv AS NazivZanra
+FROM Predstava p
+INNER JOIN Zanr z
+    ON p.OznakaZanra = z.OznakaZanra;
